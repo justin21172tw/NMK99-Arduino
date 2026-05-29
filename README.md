@@ -33,11 +33,22 @@
 - **Adafruit GFX Library** (v1.12.6)
 - **Adafruit NeoPixel** (v1.15.5)
 
-## 目前專案架構
+## 專案結構 (Project Structure)
+
+本倉庫採用分層架構，將硬體韌體與網頁系統分離：
+
+- **`firmware/`**: 包含 ESP32 的 PlatformIO 專案。
+  - `src/`: 核心程式碼。
+  - `include/`: 全域設定檔。
+  - `lib/`: 自定義功能模組。
+- **`web/`**: 存放網頁系統相關檔案（即將開發）。
+- **根目錄**: 存放共用文檔與 Git 配置。
+
+## 目前專案架構 (Firmware)
 
 ### 1. 核心流程
 
-- `src/main.cpp`
+- `firmware/src/main.cpp`
   - 系統啟動初始化（序列埠、LED、I2C、DHT、OLED 掃描）。
   - 依固定週期讀取濕溫度資料。
   - 判斷濕度狀態（LOW / NORMAL / HIGH / SENSOR_ERROR）。
@@ -45,20 +56,20 @@
 
 ### 2. 設定與型別
 
-- `include/config.h`：集中管理腳位、顯示器參數、讀取週期與濕度門檻值。
-- `include/app_types.h`：定義濕度狀態列舉型別 `HumidityStatus`。
-- `include/logger.h`：提供簡單日誌介面（INFO / WARNING / ERROR）。
+- `firmware/include/config.h`：集中管理腳位、顯示器參數、讀取週期與濕度門檻值。
+- `firmware/include/app_types.h`：定義濕度狀態列舉型別 `HumidityStatus`。
+- `firmware/include/logger.h`：提供簡單日誌介面（INFO / WARNING / ERROR）。
 
-### 3. 功能模組（`lib/`）
+### 3. 功能模組（`firmware/lib/`）
 
-- `lib/sensor/dht_manager.*`：封裝 DHT 感測器初始化與讀值邏輯。
-- `lib/indicator/led_manager.*`：管理 WS2812B 指示燈顏色切換。
-- `lib/display/display_manager.*`：管理 OLED 初始化、大字體佈局與訊息顯示。
-- `lib/hardware/hardware_probe.*`：I2C 裝置掃描與 DHT 啟動探測。
+- `firmware/lib/sensor/dht_manager.*`：封裝 DHT 感測器初始化與讀值邏輯。
+- `firmware/lib/indicator/led_manager.*`：管理 WS2812B 指示燈顏色切換。
+- `firmware/lib/display/display_manager.*`：管理 OLED 初始化、大字體佈局與訊息顯示。
+- `firmware/lib/hardware/hardware_probe.*`：I2C 裝置掃描與 DHT 啟動探測。
 
 ### 4. 建置設定
 
-- `platformio.ini`：專案建置配置與函式庫依賴管理。
+- `firmware/platformio.ini`：專案建置配置與函式庫依賴管理。
 
 ## 目前尚未實作的部分
 
