@@ -10,6 +10,29 @@
 
 此外，專案規劃會固定將測得的濕度與溫度資料上傳至網站進行紀錄，作為後續環境監控與查詢依據。
 
+## 硬體清單 (Hardware List)
+
+| 元件名稱 | 規格描述 | 接腳 (GPIO) |
+| :--- | :--- | :--- |
+| **主控板** | ESP32 Dev Module | N/A |
+| **溫濕度感測器** | DHT11 | 33 |
+| **顯示器** | 0.96" OLED (SSD1306, 128x64) | SDA:21, SCL:22 |
+| **狀態指示燈** | 內建 WS2812B RGB LED | 32 |
+
+## 軟體與開發環境 (Software & Environment)
+
+### 開發工具
+- **IDE**: Visual Studio Code + PlatformIO (Core 6.1.19)
+- **Framework**: Arduino ESP32 (v3.2.0)
+- **Platform**: Espressif 32 (v7.0.1)
+
+### 依賴函式庫 (Dependencies)
+- **DHT sensor library** (v1.4.7)
+- **Adafruit Unified Sensor** (v1.1.15)
+- **Adafruit SSD1306** (v2.5.16)
+- **Adafruit GFX Library** (v1.12.6)
+- **Adafruit NeoPixel** (v1.15.5)
+
 ## 目前專案架構
 
 ### 1. 核心流程
@@ -29,17 +52,13 @@
 ### 3. 功能模組（`lib/`）
 
 - `lib/sensor/dht_manager.*`：封裝 DHT 感測器初始化與讀值邏輯。
-- `lib/indicator/led_manager.*`：依狀態切換 RGB LED 顏色。
-- `lib/display/display_manager.*`：管理 OLED 初始化、數值與錯誤訊息顯示。
+- `lib/indicator/led_manager.*`：管理 WS2812B 指示燈顏色切換。
+- `lib/display/display_manager.*`：管理 OLED 初始化、大字體佈局與訊息顯示。
 - `lib/hardware/hardware_probe.*`：I2C 裝置掃描與 DHT 啟動探測。
 
 ### 4. 建置設定
 
-- `platformio.ini`
-  - 平台：`espressif32`
-  - 板子：`esp32dev`
-  - 框架：`arduino`
-  - 主要相依套件：DHT、SSD1306、GFX 等 Adafruit 函式庫。
+- `platformio.ini`：專案建置配置與函式庫依賴管理。
 
 ## 目前尚未實作的部分
 
