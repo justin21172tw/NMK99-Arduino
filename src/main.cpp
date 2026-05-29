@@ -13,7 +13,7 @@ namespace {
 DhtManager g_dht(Config::Pins::DHT11, Config::Dht::TYPE);
 DisplayManager g_display(Config::Display::WIDTH, Config::Display::HEIGHT, &Wire,
                          Config::Display::RESET_PIN);
-LedManager g_leds(Config::Pins::LED_RED, Config::Pins::LED_GREEN, Config::Pins::LED_BLUE);
+LedManager g_leds(Config::Pins::WS2812B);
 
 unsigned long g_last_read_ms = 0;
 bool g_display_ready = false;

@@ -1,41 +1,38 @@
 #include "led_manager.h"
 #include "config.h"
 
-LedManager::LedManager(uint8_t red_pin, uint8_t green_pin, uint8_t blue_pin)
-    : red_pin_(red_pin), green_pin_(green_pin), blue_pin_(blue_pin) {}
+LedManager::LedManager(uint8_t pin, uint8_t num_pixels)
+    : strip_(num_pixels, pin, NEO_GRB + NEO_KHZ800) {}
 
 void LedManager::Begin() {
-  pinMode(red_pin_, OUTPUT);
-  pinMode(green_pin_, OUTPUT);
-  pinMode(blue_pin_, OUTPUT);
-  SetColor(false, false, false);
+  strip_.begin();
+  strip_.setBrightness(Config::Features::LED_BRIGHTNESS);
+  strip_.show(); // Initialize all pixels to 'off'
 }
 
 void LedManager::SetStatus(HumidityStatus status) {
   if (!Config::Features::ENABLE_LED) {
-    SetColor(false, false, false);
+    SetPixelColor(0, 0, 0);
     return;
   }
 
   switch (status) {
     case HumidityStatus::STATUS_LOW:
-      SetColor(false, false, true);
+      SetPixelColor(0, 0, 255); // Blue
       break;
     case HumidityStatus::STATUS_NORMAL:
-      SetColor(false, true, false);
+      SetPixelColor(0, 255, 0); // Green
       break;
     case HumidityStatus::STATUS_HIGH:
-      SetColor(true, false, false);
+      SetPixelColor(255, 0, 0); // Red
       break;
     case HumidityStatus::STATUS_ERROR:
-      SetColor(true, false, true);
+      SetPixelColor(255, 0, 255); // Purple
       break;
   }
 }
 
-void LedManager::SetColor(bool red_on, bool green_on, bool blue_on) {
-  uint8_t brightness = Config::Features::LED_BRIGHTNESS;
-  analogWrite(red_pin_, red_on ? brightness : 0);
-  analogWrite(green_pin_, green_on ? brightness : 0);
-  analogWrite(blue_pin_, blue_on ? brightness : 0);
+void LedManager::SetPixelColor(uint8_t r, uint8_t g, uint8_t b) {
+  strip_.setPixelColor(0, strip_.Color(r, g, b));
+  strip_.show();
 }
