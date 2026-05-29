@@ -3,11 +3,11 @@
 
 #include "app_types.h"
 #include "config.h"
-#include "display/display_manager.h"
-#include "hardware/hardware_probe.h"
-#include "indicator/led_manager.h"
+#include "display_manager.h"
+#include "hardware_probe.h"
+#include "led_manager.h"
 #include "logger.h"
-#include "sensor/dht_manager.h"
+#include "dht_manager.h"
 
 namespace {
 DhtManager g_dht(Config::Pins::DHT11, Config::Dht::TYPE);
@@ -20,12 +20,12 @@ bool g_display_ready = false;
 
 HumidityStatus EvaluateHumidity(float humidity) {
   if (humidity > Config::Humidity::HIGH_THRESHOLD) {
-    return HumidityStatus::HIGH;
+    return HumidityStatus::STATUS_HIGH;
   }
   if (humidity < Config::Humidity::LOW_THRESHOLD) {
-    return HumidityStatus::LOW;
+    return HumidityStatus::STATUS_LOW;
   }
-  return HumidityStatus::NORMAL;
+  return HumidityStatus::STATUS_NORMAL;
 }
 }  // namespace
 
@@ -67,7 +67,7 @@ void loop() {
   DhtReading reading{};
   if (!g_dht.Read(reading)) {
     Logger::Error("DHT read failed");
-    g_leds.SetStatus(HumidityStatus::SENSOR_ERROR);
+    g_leds.SetStatus(HumidityStatus::STATUS_ERROR);
     if (g_display_ready) {
       g_display.ShowError("DHT read failed");
     }

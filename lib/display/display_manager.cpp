@@ -48,13 +48,13 @@ void DisplayManager::ShowError(const String& message) {
 
 const char* DisplayManager::StatusText(HumidityStatus status) const {
   switch (status) {
-    case HumidityStatus::LOW:
+    case HumidityStatus::STATUS_LOW:
       return "LOW";
-    case HumidityStatus::NORMAL:
+    case HumidityStatus::STATUS_NORMAL:
       return "NORMAL";
-    case HumidityStatus::HIGH:
+    case HumidityStatus::STATUS_HIGH:
       return "HIGH";
-    case HumidityStatus::SENSOR_ERROR:
+    case HumidityStatus::STATUS_ERROR:
       return "ERROR";
   }
   return "UNKNOWN";

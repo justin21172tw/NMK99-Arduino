@@ -5,7 +5,7 @@
 #include <Arduino.h>
 
 #include "app_types.h"
-#include "sensor/dht_manager.h"
+#include "dht_manager.h"
 
 class DisplayManager {
  public:

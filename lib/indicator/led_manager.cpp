@@ -1,4 +1,4 @@
-#include "indicator/led_manager.h"
+#include "led_manager.h"
 
 LedManager::LedManager(uint8_t red_pin, uint8_t green_pin, uint8_t blue_pin)
     : red_pin_(red_pin), green_pin_(green_pin), blue_pin_(blue_pin) {}
@@ -12,16 +12,16 @@ void LedManager::Begin() {
 
 void LedManager::SetStatus(HumidityStatus status) {
   switch (status) {
-    case HumidityStatus::LOW:
+    case HumidityStatus::STATUS_LOW:
       SetColor(false, false, true);
       break;
-    case HumidityStatus::NORMAL:
+    case HumidityStatus::STATUS_NORMAL:
       SetColor(false, true, false);
       break;
-    case HumidityStatus::HIGH:
+    case HumidityStatus::STATUS_HIGH:
       SetColor(true, false, false);
       break;
-    case HumidityStatus::SENSOR_ERROR:
+    case HumidityStatus::STATUS_ERROR:
       SetColor(true, false, true);
       break;
   }

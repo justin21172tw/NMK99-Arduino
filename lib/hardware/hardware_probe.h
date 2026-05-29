@@ -2,10 +2,11 @@
 #define HARDWARE_PROBE_H
 
 #include <Arduino.h>
+#include <Wire.h>
 
 #include <vector>
 
-#include "sensor/dht_manager.h"
+#include "dht_manager.h"
 
 namespace HardwareProbe {
 std::vector<uint8_t> ScanI2CDevices(TwoWire& wire);
