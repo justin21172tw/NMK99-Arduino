@@ -27,10 +27,32 @@ void DisplayManager::ShowReading(const DhtReading& reading, HumidityStatus statu
   }
 
   display_.clearDisplay();
+  
+  // Header / Temperature label
+  display_.setTextSize(1);
   display_.setCursor(0, 0);
-  display_.printf("Temp: %.1f C\n", reading.temperature_c);
-  display_.printf("Humi: %.1f %%\n", reading.humidity);
-  display_.printf("State: %s", StatusText(status));
+  display_.println("TEMPERATURE");
+  
+  // Temperature value (Size 2)
+  display_.setTextSize(2);
+  display_.setCursor(0, 10);
+  display_.printf("%.1f C", reading.temperature_c);
+
+  // Humidity label
+  display_.setTextSize(1);
+  display_.setCursor(0, 30);
+  display_.println("HUMIDITY");
+  
+  // Humidity value (Size 2)
+  display_.setTextSize(2);
+  display_.setCursor(0, 40);
+  display_.printf("%.1f %%", reading.humidity);
+
+  // Status footer
+  display_.setTextSize(1);
+  display_.setCursor(0, 57);
+  display_.printf("STATUS: %s", StatusText(status));
+  
   display_.display();
 }
 
@@ -40,8 +62,13 @@ void DisplayManager::ShowError(const String& message) {
   }
 
   display_.clearDisplay();
+  display_.setTextSize(2);
   display_.setCursor(0, 0);
-  display_.println("Sensor Error");
+  display_.println("SENSOR");
+  display_.println("ERROR");
+  
+  display_.setTextSize(1);
+  display_.setCursor(0, 40);
   display_.println(message);
   display_.display();
 }
