@@ -68,13 +68,25 @@ export const useSensorStore = defineStore('sensor', {
       onValue(currentRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
-          this.currentReading = {
+          const newReading: SensorReading = {
             timestamp: data.ts,
             temperature: data.t,
             humidity: data.h,
             deviceId: this.deviceId
           };
+          this.currentReading = newReading;
           this.isLoading = false;
+
+          // Add to local history if it's a new timestamp
+          const isDuplicate = this.history.some(r => r.timestamp === newReading.timestamp);
+          if (!isDuplicate) {
+            this.history.push(newReading);
+            // Sort and limit to 100 points
+            this.history.sort((a, b) => a.timestamp - b.timestamp);
+            if (this.history.length > 100) {
+              this.history.shift();
+            }
+          }
         }
       });
 

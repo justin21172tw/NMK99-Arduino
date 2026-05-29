@@ -64,7 +64,7 @@ constexpr char API_KEY[] = FIREBASE_API_KEY;
 constexpr char API_KEY[] = "AIzaSy...";
 #endif
 constexpr char DEVICE_ID[] = "NMK99-Node-01";
-constexpr uint32_t UPLOAD_INTERVAL_MS = 10000; // Upload every 10 seconds
+constexpr uint32_t UPLOAD_INTERVAL_MS = 5000; // Upload every 5 seconds
 constexpr uint32_t HISTORY_INTERVAL_MS = 600000; // History every 10 minutes
 } // namespace Firebase
 }  // namespace Config

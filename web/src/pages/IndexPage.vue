@@ -132,7 +132,7 @@
           <q-card-section class="row items-center justify-between q-pb-none">
             <div>
               <div class="text-subtitle1 text-weight-bold text-grey-9">即時溫濕度動態走勢</div>
-              <div class="text-caption text-grey-6">每 2 秒自動更新最新觀測數值</div>
+              <div class="text-caption text-grey-6">隨裝置上傳頻率 (約 5 秒) 自動更新最新觀測數值</div>
             </div>
             <div class="row items-center q-gutter-xs">
               <q-badge color="red-5" class="q-mr-xs">溫度 (°C)</q-badge>
@@ -141,10 +141,12 @@
           </q-card-section>
 
           <q-card-section class="q-pt-xs">
-            <div v-if="sensorStore.history.length === 0" class="row items-center justify-center" style="height: 350px">
+            <div v-if="sensorStore.history.length < 2" class="row items-center justify-center" style="height: 350px">
               <div class="text-center">
-                <q-spinner color="primary" size="3em" />
-                <div class="text-grey-6 q-mt-md">正在建立通訊鏈路...</div>
+                <q-spinner-dots color="primary" size="3em" />
+                <div class="text-grey-6 q-mt-md">
+                  {{ sensorStore.history.length === 0 ? '正在連線至 Firebase...' : '正在收集數據點 (至少需要 2 筆)...' }}
+                </div>
               </div>
             </div>
             <div v-else>
