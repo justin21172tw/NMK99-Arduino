@@ -1,4 +1,5 @@
 #include "led_manager.h"
+#include "config.h"
 
 LedManager::LedManager(uint8_t red_pin, uint8_t green_pin, uint8_t blue_pin)
     : red_pin_(red_pin), green_pin_(green_pin), blue_pin_(blue_pin) {}
@@ -11,6 +12,11 @@ void LedManager::Begin() {
 }
 
 void LedManager::SetStatus(HumidityStatus status) {
+  if (!Config::Features::ENABLE_LED) {
+    SetColor(false, false, false);
+    return;
+  }
+
   switch (status) {
     case HumidityStatus::STATUS_LOW:
       SetColor(false, false, true);
@@ -28,7 +34,8 @@ void LedManager::SetStatus(HumidityStatus status) {
 }
 
 void LedManager::SetColor(bool red_on, bool green_on, bool blue_on) {
-  digitalWrite(red_pin_, red_on ? HIGH : LOW);
-  digitalWrite(green_pin_, green_on ? HIGH : LOW);
-  digitalWrite(blue_pin_, blue_on ? HIGH : LOW);
+  uint8_t brightness = Config::Features::LED_BRIGHTNESS;
+  analogWrite(red_pin_, red_on ? brightness : 0);
+  analogWrite(green_pin_, green_on ? brightness : 0);
+  analogWrite(blue_pin_, blue_on ? brightness : 0);
 }

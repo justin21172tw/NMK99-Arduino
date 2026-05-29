@@ -6,6 +6,7 @@
 namespace Config {
 namespace Features {
 constexpr bool ENABLE_LED = true;  // enable or disable LED control
+constexpr uint8_t LED_BRIGHTNESS = 51; // 1/5 of 255
 }  // namespace Features
 
 namespace Pins {
