@@ -21,7 +21,7 @@ bool DisplayManager::Begin(uint8_t i2c_address) {
   return true;
 }
 
-void DisplayManager::ShowReading(const DhtReading& reading, HumidityStatus status) {
+void DisplayManager::ShowReading(const DhtReading& reading, HumidityStatus status, bool wifi_ok, bool firebase_ok) {
   if (!is_ready_) {
     return;
   }
@@ -31,7 +31,13 @@ void DisplayManager::ShowReading(const DhtReading& reading, HumidityStatus statu
   // Header / Temperature label
   display_.setTextSize(1);
   display_.setCursor(0, 0);
-  display_.println("TEMPERATURE");
+  display_.print("TEMPERATURE");
+
+  // Connection Status Icons (Top Right)
+  display_.setCursor(85, 0);
+  display_.print(wifi_ok ? "W+" : "W-");
+  display_.setCursor(110, 0);
+  display_.print(firebase_ok ? "F+" : "F-");
   
   // Temperature value (Size 2)
   display_.setTextSize(2);
@@ -41,7 +47,7 @@ void DisplayManager::ShowReading(const DhtReading& reading, HumidityStatus statu
   // Humidity label
   display_.setTextSize(1);
   display_.setCursor(0, 30);
-  display_.println("HUMIDITY");
+  display_.print("HUMIDITY");
   
   // Humidity value (Size 2)
   display_.setTextSize(2);

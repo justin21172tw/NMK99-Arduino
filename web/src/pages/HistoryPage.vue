@@ -183,9 +183,8 @@ const columns: QTableColumn[] = [
 ];
 
 function onRangeChange(val: number) {
-  // In a real app, this would trigger a Firebase query
-  // Here we just re-generate the simulation for that range
-  sensorStore.generateHistoricalData(val, val > 6 ? 10 : 2);
+  // TODO: Trigger a Firebase query for the new range
+  console.log('Range changed to', val, 'hours. Firebase data fetching to be implemented.');
 }
 
 function getTempColor(temp: number) {

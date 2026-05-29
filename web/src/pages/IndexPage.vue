@@ -93,10 +93,10 @@
                 <q-icon name="dns" size="24px" color="grey-3" />
               </div>
               <div class="text-h6 text-weight-bold q-my-none">
-                {{ sensorStore.isSimulating ? '系統正常監測中' : '數據傳輸已暫停' }}
+                {{ sensorStore.currentReading ? '系統正常監測中' : '等待裝置數據...' }}
               </div>
               <div class="text-caption text-blue-1 q-mt-xs">
-                累計接收樣本: <span class="text-weight-bold text-white">{{ sensorStore.history.length }}</span> 筆
+                Firebase 即時同步中 | 樣本數: <span class="text-weight-bold text-white">{{ sensorStore.history.length }}</span>
               </div>
             </div>
 
@@ -105,10 +105,10 @@
                 dense
                 color="white"
                 text-color="primary"
-                :icon="sensorStore.isSimulating ? 'pause' : 'play_arrow'"
-                :label="sensorStore.isSimulating ? '暫停接收' : '開始接收'"
+                icon="sync"
+                label="重新連線"
                 class="col text-weight-bold"
-                @click="toggleSimulation"
+                @click="forceUpdate"
               />
               <q-btn
                 dense
@@ -209,16 +209,8 @@ function getPercentage(val: number | undefined, min: number, max: number): numbe
   return Math.max(0, Math.min(1, pct));
 }
 
-function toggleSimulation() {
-  if (sensorStore.isSimulating) {
-    sensorStore.stopSimulation();
-  } else {
-    sensorStore.startSimulation();
-  }
-}
-
 function forceUpdate() {
-  sensorStore.resetData();
+  sensorStore.initFirebaseSync();
 }
 
 const latestLogs = computed(() => {

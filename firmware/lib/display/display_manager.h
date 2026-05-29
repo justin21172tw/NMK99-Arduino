@@ -11,7 +11,7 @@ class DisplayManager {
  public:
   DisplayManager(uint16_t width, uint16_t height, TwoWire* wire, int8_t reset_pin);
   bool Begin(uint8_t i2c_address);
-  void ShowReading(const DhtReading& reading, HumidityStatus status);
+  void ShowReading(const DhtReading& reading, HumidityStatus status, bool wifi_ok, bool firebase_ok);
   void ShowError(const String& message);
 
  private:

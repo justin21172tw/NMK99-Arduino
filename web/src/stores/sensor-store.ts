@@ -1,4 +1,6 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
+import { db } from '../firebase';
+import { ref as dbRef, onValue, query, limitToLast, orderByKey } from 'firebase/database';
 
 export interface SensorReading {
   timestamp: number; // millisecond timestamp
@@ -11,9 +13,8 @@ export const useSensorStore = defineStore('sensor', {
   state: () => ({
     currentReading: null as SensorReading | null,
     history: [] as SensorReading[],
-    isSimulating: false,
-    simulationIntervalId: null as number | null,
-    deviceId: 'DHT22-Node-01',
+    isLoading: false,
+    deviceId: 'NMK99-Node-01',
     thresholds: {
       tempMax: 30,
       tempMin: 18,
@@ -24,10 +25,8 @@ export const useSensorStore = defineStore('sensor', {
 
   getters: {
     latestReadings: (state) => {
-      // Returns last 50 readings for real-time graph
       return state.history.slice(-50);
     },
-    // Statistics for the current history
     statistics: (state) => {
       if (state.history.length === 0) {
         return {
@@ -59,103 +58,51 @@ export const useSensorStore = defineStore('sensor', {
   },
 
   actions: {
-    // Generate simulated data for the past N hours
-    generateHistoricalData(hours: number = 24, intervalMinutes: number = 10) {
-      const data: SensorReading[] = [];
-      const now = Date.now();
-      const totalPoints = (hours * 60) / intervalMinutes;
-
-      let temp = 24.5;
-      let humid = 55.0;
-
-      for (let i = totalPoints; i >= 0; i--) {
-        const timestamp = now - i * intervalMinutes * 60 * 1000;
-        const hourOfDay = new Date(timestamp).getHours();
-        const diurnalTempFactor = Math.sin(((hourOfDay - 8) / 24) * 2 * Math.PI);
-        const targetTemp = 25.0 + diurnalTempFactor * 4.0;
-        const targetHumid = 60.0 - diurnalTempFactor * 15.0;
-
-        temp = temp + (targetTemp - temp) * 0.1 + (Math.random() - 0.5) * 0.5;
-        humid = humid + (targetHumid - humid) * 0.1 + (Math.random() - 0.5) * 1.5;
-
-        temp = Math.max(10, Math.min(45, temp));
-        humid = Math.max(10, Math.min(100, humid));
-
-        data.push({
-          timestamp,
-          temperature: parseFloat(temp.toFixed(1)),
-          humidity: parseFloat(humid.toFixed(1)),
-          deviceId: this.deviceId,
-        });
-      }
-
-      this.history = data;
-      if (data.length > 0) {
-        this.currentReading = data[data.length - 1] ?? null;
-      }
-    },
-
-    addReading(reading: SensorReading) {
-      this.history.push(reading);
-      this.currentReading = reading;
-      if (this.history.length > 5000) {
-        this.history.shift();
-      }
-    },
-
-    startSimulation() {
-      if (this.isSimulating) return;
-      this.isSimulating = true;
-      if (this.history.length === 0) {
-        this.generateHistoricalData(24, 10);
-      }
-
-      this.simulationIntervalId = window.setInterval(() => {
-        if (!this.currentReading) {
+    // Initialize Firebase listeners
+    initFirebaseSync() {
+      this.isLoading = true;
+      const devicePath = `devices/${this.deviceId}`;
+      
+      // 1. Listen for current reading
+      const currentRef = dbRef(db, `${devicePath}/current`);
+      onValue(currentRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
           this.currentReading = {
-            timestamp: Date.now(),
-            temperature: 25.0,
-            humidity: 50.0,
-            deviceId: this.deviceId,
+            timestamp: data.ts,
+            temperature: data.t,
+            humidity: data.h,
+            deviceId: this.deviceId
           };
+          this.isLoading = false;
         }
+      });
 
-        const lastTemp = this.currentReading.temperature;
-        const lastHumid = this.currentReading.humidity;
-        const deltaTemp = (Math.random() - 0.5) * 0.4;
-        const deltaHumid = (Math.random() - 0.5) * 1.0;
-
-        const newTemp = parseFloat(Math.max(15, Math.min(40, lastTemp + deltaTemp)).toFixed(1));
-        const newHumid = parseFloat(Math.max(20, Math.min(95, lastHumid + deltaHumid)).toFixed(1));
-
-        this.addReading({
-          timestamp: Date.now(),
-          temperature: newTemp,
-          humidity: newHumid,
-          deviceId: this.deviceId,
-        });
-      }, 2000);
+      // 2. Listen for history (last 100 points for performance)
+      const historyRef = query(
+        dbRef(db, `${devicePath}/history`),
+        orderByKey(),
+        limitToLast(100)
+      );
+      
+      onValue(historyRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          const list: SensorReading[] = Object.keys(data).map(key => ({
+            timestamp: data[key].ts,
+            temperature: data[key].t,
+            humidity: data[key].h,
+            deviceId: this.deviceId
+          }));
+          // Sort by timestamp just in case
+          this.history = list.sort((a, b) => a.timestamp - b.timestamp);
+        }
+      });
     },
-
-    stopSimulation() {
-      if (!this.isSimulating) return;
-      if (this.simulationIntervalId !== null) {
-        clearInterval(this.simulationIntervalId);
-        this.simulationIntervalId = null;
-      }
-      this.isSimulating = false;
-    },
-
-    resetData() {
-      this.history = [];
-      this.currentReading = null;
-      if (this.isSimulating) {
-        this.stopSimulation();
-        this.startSimulation();
-      }    },
 
     updateThresholds(newThresholds: { tempMax: number, tempMin: number, humidMax: number, humidMin: number }) {
-      this.thresholds = { ...this.thresholds, ...newThresholds };    }
+      this.thresholds = { ...this.thresholds, ...newThresholds };
+    }
   },
 });
 

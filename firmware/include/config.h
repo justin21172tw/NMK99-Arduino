@@ -36,6 +36,37 @@ constexpr float HIGH_THRESHOLD = 70.0f;  // humudity lower then 70%
 namespace Timing {
 constexpr uint32_t LOOP_DELAY_MS = 100;
 }  // namespace Timing
+
+namespace Network {
+#ifdef WIFI_SSID
+constexpr char SSID[] = WIFI_SSID;
+#else
+constexpr char SSID[] = "YOUR_WIFI_SSID";
+#endif
+
+#ifdef WIFI_PASSWORD
+constexpr char PASSWORD[] = WIFI_PASSWORD;
+#else
+constexpr char PASSWORD[] = "YOUR_WIFI_PASSWORD";
+#endif
+} // namespace Network
+
+namespace Firebase {
+#ifdef FIREBASE_DATABASE_URL
+constexpr char HOST[] = FIREBASE_DATABASE_URL;
+#else
+constexpr char HOST[] = "tah-monitor-default-rtdb.firebaseio.com";
+#endif
+
+#ifdef FIREBASE_API_KEY
+constexpr char API_KEY[] = FIREBASE_API_KEY;
+#else
+constexpr char API_KEY[] = "AIzaSy...";
+#endif
+constexpr char DEVICE_ID[] = "NMK99-Node-01";
+constexpr uint32_t UPLOAD_INTERVAL_MS = 10000; // Upload every 10 seconds
+constexpr uint32_t HISTORY_INTERVAL_MS = 600000; // History every 10 minutes
+} // namespace Firebase
 }  // namespace Config
 
 #endif

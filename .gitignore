@@ -69,7 +69,9 @@ Testing/
 .cache/
 
 # PlatformIO
-.pio/
+.pio
+.env
+/
 
 # IDEs
 .vscode/

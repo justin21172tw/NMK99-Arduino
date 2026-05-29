@@ -18,9 +18,9 @@
 
         <div class="row items-center q-gutter-md">
           <!-- Device status badge -->
-          <q-badge :color="sensorStore.isSimulating ? 'green' : 'amber'" text-color="black" class="q-py-xs q-px-sm text-weight-medium">
-            <q-icon :name="sensorStore.isSimulating ? 'sensors' : 'sensors_off'" size="14px" class="q-mr-xs" />
-            {{ sensorStore.isSimulating ? '模擬數據串流中' : '連線暫停' }}
+          <q-badge :color="sensorStore.currentReading ? 'green' : 'amber'" text-color="black" class="q-py-xs q-px-sm text-weight-medium">
+            <q-icon :name="sensorStore.currentReading ? 'sensors' : 'sensors_off'" size="14px" class="q-mr-xs" />
+            {{ sensorStore.currentReading ? '線上' : '連線暫停' }}
           </q-badge>
 
           <div class="text-caption text-grey-3 gt-xs">
@@ -119,8 +119,8 @@ function toggleDarkMode() {
 }
 
 onMounted(() => {
-  // Automatically start simulating on load to make the app alive!
-  sensorStore.startSimulation();
+  // Initialize Firebase synchronization
+  sensorStore.initFirebaseSync();
 });
 </script>
 
