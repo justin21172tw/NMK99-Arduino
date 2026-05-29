@@ -5,16 +5,16 @@
 
 namespace Config {
 namespace Features {
-constexpr bool ENABLE_LED = false;  // enable or disable LED control
+constexpr bool ENABLE_LED = true;  // enable or disable LED control
 }  // namespace Features
 
 namespace Pins {
 constexpr uint8_t DHT11 = 13;
 constexpr uint8_t OLED_SDA = 21;
 constexpr uint8_t OLED_SCL = 22;
-constexpr uint8_t LED_RED = 25;
-constexpr uint8_t LED_GREEN = 26;
-constexpr uint8_t LED_BLUE = 27;
+constexpr uint8_t LED_RED = 16;
+constexpr uint8_t LED_GREEN = 17;
+constexpr uint8_t LED_BLUE = 5;
 }  // namespace Pins
 
 namespace Display {
