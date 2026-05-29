@@ -46,27 +46,53 @@ void InitWiFi() {
 }
 
 void InitFirebase() {
+  Logger::Info("Initializing Firebase...");
+  
+  // Diagnostics: Print first and last characters of credentials to verify .env injection
+  String dbUrl = String(Config::Firebase::HOST);
+  String apiKey = String(Config::Firebase::API_KEY);
+  
+  Logger::Info("DB URL: " + dbUrl.substring(0, 10) + "..." + dbUrl.substring(dbUrl.length() - 5));
+  Logger::Info("API Key: " + apiKey.substring(0, 5) + "..." + apiKey.substring(apiKey.length() - 5));
+
   config.api_key = Config::Firebase::API_KEY;
   config.database_url = Config::Firebase::HOST;
   
-  if (Firebase.ready()) return;
+  // Assign the callback function for the long running token generation task
+  config.token_status_callback = tokenStatusCallback; 
+
+  // Sign up as anonymous user
+  // Required for the library to generate a token session
+  Logger::Info("Signing up anonymously...");
+  if (Firebase.signUp(&config, &auth, "", "")) {
+    Logger::Info("Firebase anonymous signup success");
+  } else {
+    Logger::Error("Firebase signup failed: " + String(config.signer.signupError.message.c_str()));
+  }
 
   Firebase.reconnectWiFi(true);
   Firebase.begin(&config, &auth);
-  Logger::Info("Firebase initialized");
+  
+  Logger::Info("Firebase begin called.");
 }
 
 void UploadToFirebase(const DhtReading& reading, bool isHistory) {
-  if (!Firebase.ready()) return;
+  if (!Firebase.ready()) {
+    static unsigned long last_not_ready_log = 0;
+    if (millis() - last_not_ready_log > 15000) { // Check every 15s
+      Logger::Warning("Firebase not ready. Status: " + fbdo.errorReason());
+      last_not_ready_log = millis();
+    }
+    return;
+  }
 
   String basePath = "/devices/" + String(Config::Firebase::DEVICE_ID);
   FirebaseJson json;
   json.add("t", reading.temperature_c);
   json.add("h", reading.humidity);
-  // Use Firebase Server Value for timestamp
-  FirebaseJson timestamp;
-  timestamp.set(".sv", "timestamp");
-  json.set("ts", timestamp);
+  
+  // Correct syntax for Firebase Server Value timestamp
+  json.set("ts/.sv", "timestamp");
 
   if (isHistory) {
     String historyPath = basePath + "/history";
