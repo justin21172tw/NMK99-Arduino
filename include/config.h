@@ -10,7 +10,7 @@ constexpr uint8_t LED_BRIGHTNESS = 51; // 1/5 of 255 for WS2812B
 }  // namespace Features
 
 namespace Pins {
-constexpr uint8_t DHT11 = 13;
+constexpr uint8_t DHT11 = 33;
 constexpr uint8_t OLED_SDA = 21;
 constexpr uint8_t OLED_SCL = 22;
 constexpr uint8_t WS2812B = 32;
