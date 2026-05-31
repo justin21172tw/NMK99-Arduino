@@ -71,17 +71,16 @@
 
 - `firmware/platformio.ini`：專案建置配置與函式庫依賴管理。
 
-## 目前尚未實作的部分
+## 已實作功能 (Implemented Features)
 
-以下功能已在需求中規劃，但目前程式碼尚未完成：
+目前已完成以下核心功能之開發與部署：
 
-1. **資料上傳網站**
-   - 尚未實作 Wi-Fi 連線流程與網路通訊（HTTP/MQTT 等）。
-   - 尚未將濕度/溫度定期送出到遠端網站或伺服器。
+1. **即時數據上傳與 API**
+   - 實作 ESP32 Wi-Fi 連線機制。
+   - 整合 Firebase ESP Client，透過安全連線與匿名驗證，將溫濕度即時資料定期送出至 Firebase Realtime Database 雲端資料庫。
+2. **雲端監控網站**
+   - 採用 Quasar Framework (Vue 3) 開發網頁端監控看板。
+   - 串接 Firebase Web SDK 實現 WebSocket 即時雙向同步顯示。
+   - 提供動態走勢圖表、歷史統計摘要、原始數據列表，並支援一鍵匯出 CSV 報表。
 
-2. **雲端資料紀錄整合**
-   - 尚未定義後端 API 格式、驗證方式與錯誤重送機制。
-   - 尚未建立本地暫存/補傳機制（網路中斷時避免資料遺失）。
-
-3. **遠端監控擴充**
-   - 目前僅有本地 LED/OLED/Serial 顯示，尚無網站端圖表與歷史查詢串接。
+- **線上部署網址**：[https://tah-monitor.web.app](https://tah-monitor.web.app)
