@@ -29,6 +29,24 @@ FirebaseData fbdo;
 FirebaseAuth auth;
 FirebaseConfig config;
 
+bool LooksConfigured(const char* value) {
+  if (value == nullptr) {
+    return false;
+  }
+  String text(value);
+  text.trim();
+  if (text.length() == 0) {
+    return false;
+  }
+  if (text.startsWith("YOUR_")) {
+    return false;
+  }
+  if (text.indexOf("...") >= 0) {
+    return false;
+  }
+  return true;
+}
+
 void InitWiFi() {
   WiFi.begin(Config::Network::SSID, Config::Network::PASSWORD);
   Logger::Info("Connecting to WiFi...");
@@ -39,7 +57,7 @@ void InitWiFi() {
     attempts++;
   }
   if (WiFi.status() == WL_CONNECTED) {
-    Logger::Info("\nWiFi connected. IP: " + WiFi.localIP().toString());
+    Logger::Info("\nWiFi connected");
   } else {
     Logger::Warning("\nWiFi connection failed.");
   }
@@ -47,13 +65,13 @@ void InitWiFi() {
 
 void InitFirebase() {
   Logger::Info("Initializing Firebase...");
-  
-  // Diagnostics: Print first and last characters of credentials to verify .env injection
-  String dbUrl = String(Config::Firebase::HOST);
-  String apiKey = String(Config::Firebase::API_KEY);
-  
-  Logger::Info("DB URL: " + dbUrl.substring(0, 10) + "..." + dbUrl.substring(dbUrl.length() - 5));
-  Logger::Info("API Key: " + apiKey.substring(0, 5) + "..." + apiKey.substring(apiKey.length() - 5));
+  const String dbUrl(Config::Firebase::HOST);
+  const String apiKey(Config::Firebase::API_KEY);
+  Logger::Info(String("Firebase config present: db_url=") +
+               (LooksConfigured(Config::Firebase::HOST) ? "yes" : "no") +
+               ", api_key=" + (LooksConfigured(Config::Firebase::API_KEY) ? "yes" : "no"));
+  Logger::Info(String("Firebase credential metadata: db_url_len=") + dbUrl.length() +
+               ", api_key_len=" + apiKey.length());
 
   config.api_key = Config::Firebase::API_KEY;
   config.database_url = Config::Firebase::HOST;
@@ -80,7 +98,7 @@ void UploadToFirebase(const DhtReading& reading, bool isHistory) {
   if (!Firebase.ready()) {
     static unsigned long last_not_ready_log = 0;
     if (millis() - last_not_ready_log > 15000) { // Check every 15s
-      Logger::Warning("Firebase not ready. Status: " + fbdo.errorReason());
+      Logger::Warning("Firebase not ready. HTTP code: " + String(fbdo.httpCode()));
       last_not_ready_log = millis();
     }
     return;
@@ -99,14 +117,14 @@ void UploadToFirebase(const DhtReading& reading, bool isHistory) {
     if (Firebase.RTDB.pushJSON(&fbdo, historyPath.c_str(), &json)) {
       Logger::Info("History pushed to Firebase");
     } else {
-      Logger::Error("Firebase history push failed: " + fbdo.errorReason());
+      Logger::Error("Firebase history push failed. HTTP code: " + String(fbdo.httpCode()));
     }
   } else {
     String currentPath = basePath + "/current";
     if (Firebase.RTDB.setJSON(&fbdo, currentPath.c_str(), &json)) {
       Logger::Info("Current data set in Firebase");
     } else {
-      Logger::Error("Firebase set failed: " + fbdo.errorReason());
+      Logger::Error("Firebase set failed. HTTP code: " + String(fbdo.httpCode()));
     }
   }
 }
