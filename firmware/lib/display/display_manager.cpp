@@ -21,6 +21,20 @@ bool DisplayManager::Begin(uint8_t i2c_address) {
   return true;
 }
 
+void DisplayManager::ShowStatus(const String& message) {
+  if (!is_ready_) {
+    return;
+  }
+  display_.clearDisplay();
+  display_.setTextSize(1);
+  display_.setTextColor(SSD1306_WHITE);
+  display_.setCursor(0, 0);
+  display_.println("SYSTEM BOOTING");
+  display_.setCursor(0, 20);
+  display_.println(message);
+  display_.display();
+}
+
 void DisplayManager::ShowReading(const DhtReading& reading, HumidityStatus status, bool wifi_ok, bool firebase_ok) {
   if (!is_ready_) {
     return;

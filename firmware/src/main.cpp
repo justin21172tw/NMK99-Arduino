@@ -48,44 +48,48 @@ bool LooksConfigured(const char* value) {
 }
 
 void InitWiFi() {
+  if (g_display_ready) g_display.ShowStatus("Connecting WiFi...");
   WiFi.begin(Config::Network::SSID, Config::Network::PASSWORD);
   Logger::Info("Connecting to WiFi...");
+  
+  // Wait shorter time in setup, continue in loop
   int attempts = 0;
-  while (WiFi.status() != WL_CONNECTED && attempts < 20) {
+  while (WiFi.status() != WL_CONNECTED && attempts < 10) { 
     delay(500);
     Serial.print(".");
     attempts++;
   }
+  
   if (WiFi.status() == WL_CONNECTED) {
     Logger::Info("\nWiFi connected");
+    if (g_display_ready) g_display.ShowStatus("WiFi OK");
   } else {
-    Logger::Warning("\nWiFi connection failed.");
+    Logger::Warning("\nWiFi failed (will retry)");
+    if (g_display_ready) g_display.ShowStatus("WiFi Skip...");
   }
 }
 
 void InitFirebase() {
-  Logger::Info("Initializing Firebase...");
-  const String dbUrl(Config::Firebase::HOST);
-  const String apiKey(Config::Firebase::API_KEY);
-  Logger::Info(String("Firebase config present: db_url=") +
-               (LooksConfigured(Config::Firebase::HOST) ? "yes" : "no") +
-               ", api_key=" + (LooksConfigured(Config::Firebase::API_KEY) ? "yes" : "no"));
-  Logger::Info(String("Firebase credential metadata: db_url_len=") + dbUrl.length() +
-               ", api_key_len=" + apiKey.length());
+  if (WiFi.status() != WL_CONNECTED) {
+    Logger::Warning("Skipping Firebase init: No WiFi");
+    return;
+  }
 
+  if (g_display_ready) g_display.ShowStatus("Init Firebase...");
+  Logger::Info("Initializing Firebase...");
+  
   config.api_key = Config::Firebase::API_KEY;
   config.database_url = Config::Firebase::HOST;
-  
-  // Assign the callback function for the long running token generation task
   config.token_status_callback = tokenStatusCallback; 
 
   // Sign up as anonymous user
-  // Required for the library to generate a token session
   Logger::Info("Signing up anonymously...");
   if (Firebase.signUp(&config, &auth, "", "")) {
     Logger::Info("Firebase anonymous signup success");
+    if (g_display_ready) g_display.ShowStatus("Firebase OK");
   } else {
-    Logger::Error("Firebase signup failed: " + String(config.signer.signupError.message.c_str()));
+    Logger::Error("Firebase signup failed");
+    if (g_display_ready) g_display.ShowStatus("Firebase Skip");
   }
 
   Firebase.reconnectWiFi(true);
@@ -173,10 +177,12 @@ void setup() {
 
 void loop() {
   const unsigned long now = millis();
+  static bool first_run = true;
   
-  // 1. Read sensor
-  if (now - g_last_read_ms >= Config::Dht::READ_INTERVAL_MS) {
+  // 1. Read sensor (Immediately on first run or after interval)
+  if (first_run || (now - g_last_read_ms >= Config::Dht::READ_INTERVAL_MS)) {
     g_last_read_ms = now;
+    first_run = false;
 
     DhtReading reading{};
     if (g_dht.Read(reading)) {
